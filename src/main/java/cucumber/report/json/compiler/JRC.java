@@ -34,7 +34,9 @@ public class JRC extends AbstractMojo {
             feature.put("description", node.get("description").toString());
             feature.put("keyword", node.get("keyword").toString());
             feature.put("uri", node.get("uri").toString());
-            if (node.get("tags").toString() != null) feature.put("tags", node.get("tags").toString());
+            if (node.get("tags") != null) {
+                feature.put("tags", node.get("tags").toString());
+            }
             featureMap.put(node.get("id").toString(), feature);
         }
     }
@@ -152,7 +154,7 @@ public class JRC extends AbstractMojo {
             writeCompiledReport(writeCompiledReportsToFolder);
         }
         catch (Exception e){
-            System.out.println(e.getStackTrace().toString());
+            System.out.println(e.toString());
         }
     }
 }
