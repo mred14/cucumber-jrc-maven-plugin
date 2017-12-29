@@ -1,4 +1,4 @@
-package com.github.sethijatin.cucumber.json_report_compiler;
+package cucumber.json.report.compiler;
 
 import org.apache.maven.plugin.AbstractMojo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -126,8 +126,8 @@ public class JRC extends AbstractMojo {
 
     private void writeCompiledReport(String folderPath) throws Exception{
         String report = compileJsonFile();
-        BufferedWriter bw = null;
-        FileWriter fw = null;
+        BufferedWriter bw;
+        FileWriter fw;
         fw = new FileWriter(  folderPath + "/compiled-feature-report.json");
         bw = new BufferedWriter(fw);
         bw.write(report);
@@ -152,7 +152,7 @@ public class JRC extends AbstractMojo {
             writeCompiledReport(writeCompiledReportsToFolder);
         }
         catch (Exception e){
-            System.out.println(e.getStackTrace());
+            System.out.println(e.getStackTrace().toString());
         }
     }
 }
