@@ -1,4 +1,4 @@
-package cucumber.json.report.compiler;
+package com.github.sethijatin.cucumber.json.report.compiler;
 
 import org.apache.maven.plugin.AbstractMojo;
 import com.fasterxml.jackson.databind.JsonNode;
