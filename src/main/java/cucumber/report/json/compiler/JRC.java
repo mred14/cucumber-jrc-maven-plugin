@@ -1,4 +1,4 @@
-package cucumber.report.compiler;
+package cucumber.report.json.compiler;
 
 import org.apache.maven.plugin.AbstractMojo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,7 +12,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.*;
 import java.util.*;
 
-@Mojo(name = "my-goal", threadSafe = true, defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
+@Mojo(name = "compile-report", threadSafe = true, defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class JRC extends AbstractMojo {
 
     @Parameter(readonly = true)
