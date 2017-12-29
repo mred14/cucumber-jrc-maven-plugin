@@ -1,41 +1,33 @@
 package com.github.sethijatin.cucumber.json_report_compiler;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- * @goal CompileReport
- */
+@Mojo(name = "my-goal", threadSafe = true, defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class JRC extends AbstractMojo {
 
-    /**
-     * @parameter expression="${CompileReport.ReadFrom}"
-     */
+    @Parameter(readonly = true)
     private String readJsonReportsFromFolder;
 
-    /**
-     * @parameter expression="${CompileReport.WriteTo}"
-     */
+    @Parameter(readonly = true)
     private String writeCompiledReportsToFolder;
 
-    private HashMap<String, HashMap<String,String>> featureMap = new HashMap<>();
-    private HashMap<String, List<String>> elementMap = new HashMap<>();
+    private HashMap<String, HashMap<String,String>> featureMap = new HashMap<String, HashMap<String, String>>();
+    private HashMap<String, List<String>> elementMap = new HashMap<String, List<String>>();
 
     private void generateFeatureMapForNode (JsonNode node){
 
         if (!featureMap.containsKey(node.get("id").toString())) {
-            HashMap<String, String> feature = new HashMap<>();
+            HashMap<String, String> feature = new HashMap<String, String>();
             feature.put("line", node.get("line").toString());
             feature.put("name", node.get("name").toString());
             feature.put("id", node.get("id").toString());
@@ -52,7 +44,7 @@ public class JRC extends AbstractMojo {
         JsonNode elements = node.get("elements");
         for (JsonNode element : elements){
             if (!elementMap.containsKey(node.get("id").toString())){
-                List<String> elementList = new ArrayList<>();
+                List<String> elementList = new ArrayList<String>();
                 elementList.add(element.toString());
                 elementMap.put(node.get("id").toString(), elementList);
             }
@@ -65,8 +57,6 @@ public class JRC extends AbstractMojo {
         }
     }
 
-    @NotNull
-    @Contract(pure = true)
     private String writeElements (List<String> elements){
         String elementStringStart = "";
         String elementStringStop = " ]";
@@ -81,8 +71,8 @@ public class JRC extends AbstractMojo {
         return elementStringStart + elementStringStop;
     }
 
-    @NotNull
-    private Sring writeFeature (String id, HashMap<String, String> feature){
+
+    private String writeFeature (String id, HashMap<String, String> feature){
         String featureStart = "{ ";
         String featureStop = " }";
         String elementList = writeElements(elementMap.get(id));
@@ -106,7 +96,7 @@ public class JRC extends AbstractMojo {
     }
 
     private List<String> readJsonReport(String folderPath) throws Exception {
-        List<String> jsonReports = new ArrayList<>();
+        List<String> jsonReports = new ArrayList<String>();
         File dir = new File(folderPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -117,7 +107,6 @@ public class JRC extends AbstractMojo {
         return jsonReports;
     }
 
-    @NotNull
     private String compileJsonFile(){
 
         String compiledJsonStart = "";
@@ -146,19 +135,23 @@ public class JRC extends AbstractMojo {
         fw.close();
     }
 
-    public void execute() throws Exception{
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
-        List<String> jsonContentList = readJsonReport(readJsonReportsFromFolder);
-        ObjectMapper objMapper = new ObjectMapper();
+        try {
+            List<String> jsonContentList = readJsonReport(readJsonReportsFromFolder);
+            ObjectMapper objMapper = new ObjectMapper();
 
-        for (String jsonContent : jsonContentList){
-            JsonNode nodes = objMapper.readTree(jsonContent);
-            for (JsonNode node : nodes){
-                generateFeatureMapForNode(node);
-                generateElementMapForNode(node);
+            for (String jsonContent : jsonContentList) {
+                JsonNode nodes = objMapper.readTree(jsonContent);
+                for (JsonNode node : nodes) {
+                    generateFeatureMapForNode(node);
+                    generateElementMapForNode(node);
+                }
             }
+            writeCompiledReport(writeCompiledReportsToFolder);
         }
-
-        writeCompiledReport(writeCompiledReportsToFolder);
+        catch (Exception e){
+            System.out.println(e.getStackTrace());
+        }
     }
 }
