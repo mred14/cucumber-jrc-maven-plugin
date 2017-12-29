@@ -34,7 +34,7 @@ public class JRC extends AbstractMojo {
             feature.put("description", node.get("description").toString());
             feature.put("keyword", node.get("keyword").toString());
             feature.put("uri", node.get("uri").toString());
-            feature.put("tags", node.get("tags").toString());
+            if (node.get("tags").toString() != null) feature.put("tags", node.get("tags").toString());
             featureMap.put(node.get("id").toString(), feature);
         }
     }
@@ -135,6 +135,7 @@ public class JRC extends AbstractMojo {
         fw.close();
     }
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         try {
